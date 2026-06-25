@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Development Appraisal · Paliashvili</title>
+<style>
+  :root{
+    --navy:#1f3864; --navy2:#2e4d7b; --gold:#7f6000; --goldbg:#fff2cc;
+    --blue:#deeaf1; --green:#e2efda; --red:#fce4d6; --redtext:#9c0006;
+    --ink:#1b2433; --muted:#5b6573; --line:#dce1e8; --bg:#eef1f5; --card:#fff;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Calibri,Arial,sans-serif;
+    background:var(--bg);color:var(--ink);font-size:14px;line-height:1.45;}
+  header{background:var(--navy);color:#fff;padding:18px 24px;display:flex;justify-content:space-between;
+    align-items:center;flex-wrap:wrap;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,.15);}
+  header h1{font-size:18px;margin:0;font-weight:700;letter-spacing:.3px;}
+  header .sub{font-size:12px;opacity:.8;margin-top:2px;}
+  header .actions{display:flex;gap:8px;}
+  button{font-family:inherit;font-size:13px;border:none;border-radius:6px;padding:8px 14px;
+    cursor:pointer;font-weight:600;transition:.15s;}
+  .btn-ghost{background:rgba(255,255,255,.15);color:#fff;}
+  .btn-ghost:hover{background:rgba(255,255,255,.28);}
+  .wrap{display:grid;grid-template-columns:380px 1fr;gap:20px;padding:20px;max-width:1400px;margin:0 auto;align-items:start;}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr;}}
+  .panel{background:var(--card);border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden;}
+  .panel > h2{background:var(--navy);color:#fff;font-size:13px;margin:0;padding:11px 16px;letter-spacing:.4px;text-transform:uppercase;}
+  .group{padding:6px 16px 14px;}
+  .group h3{font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:.6px;
+    margin:16px 0 8px;border-bottom:1px solid var(--line);padding-bottom:4px;}
+  .field{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:7px 0;}
+  .field label{flex:1;font-size:13px;color:var(--ink);}
+  .field .hint{display:block;font-size:11px;color:var(--muted);font-weight:400;}
+  .field .inp{display:flex;align-items:center;gap:5px;}
+  .field input{width:92px;text-align:right;padding:6px 8px;border:1px solid #c9b67a;border-radius:5px;
+    background:var(--goldbg);color:var(--gold);font-weight:700;font-size:13px;font-family:inherit;}
+  .field input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 2px rgba(127,96,0,.18);}
+  .field .unit{font-size:11px;color:var(--muted);width:60px;}
+  /* results */
+  .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:16px;}
+  .kpi{border-radius:8px;padding:14px 16px;background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;}
+  .kpi.accent{background:linear-gradient(135deg,#1e7a46,#2fa05f);}
+  .kpi .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.5px;opacity:.85;}
+  .kpi .val{font-size:24px;font-weight:800;margin-top:4px;}
+  .kpi .note{font-size:11px;opacity:.8;margin-top:2px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  table.det{margin:0;}
+  .det th,.det td{padding:7px 16px;text-align:right;border-bottom:1px solid var(--line);}
+  .det th:first-child,.det td:first-child{text-align:left;}
+  .det thead th{background:var(--blue);color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:.4px;}
+  .det .section td{background:#f4f6f9;font-weight:700;color:var(--navy);text-transform:uppercase;font-size:11px;letter-spacing:.3px;}
+  .det .total td{font-weight:700;border-top:2px solid var(--navy);border-bottom:2px solid var(--navy);background:#f4f6f9;}
+  .det .sub{color:var(--muted);}
+  .det .neg{color:var(--redtext);}
+  .det .grand td{font-weight:800;font-size:15px;background:var(--green);border-top:2px solid #1e7a46;border-bottom:2px solid #1e7a46;}
+  .det td .desc-note{display:block;font-size:11px;color:var(--muted);font-weight:400;}
+  /* sensitivity */
+  .sens{padding:8px 16px 18px;overflow-x:auto;}
+  .sens p{font-size:12px;color:var(--muted);margin:6px 0 12px;}
+  table.grid{font-size:12px;border:1px solid var(--line);}
+  .grid th,.grid td{padding:6px 9px;text-align:center;border:1px solid var(--line);white-space:nowrap;}
+  .grid thead th,.grid tbody th{background:var(--blue);color:var(--navy);font-weight:700;font-size:11px;}
+  .grid .corner{background:var(--navy);color:#fff;font-size:10px;line-height:1.2;}
+  .grid td.cur{outline:2px solid var(--navy);font-weight:800;}
+  .foot{padding:14px 24px;font-size:11px;color:var(--muted);text-align:center;max-width:1400px;margin:0 auto;}
+  @media print{header .actions{display:none;}body{background:#fff;}}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Development Appraisal Calculator</h1>
+    <div class="sub">Paliashvili, Tbilisi, Georgia · Currency: USD · Mirrors the Excel model</div>
+  </div>
+  <div class="actions">
+    <button class="btn-ghost" onclick="resetDefaults()">↺ Reset to file defaults</button>
+    <button class="btn-ghost" onclick="window.print()">⎙ Print / PDF</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <!-- INPUTS -->
+  <div class="panel">
+    <h2>Assumptions — Input Variables</h2>
+    <div class="group" id="inputs"></div>
+  </div>
+
+  <!-- RESULTS -->
+  <div style="display:flex;flex-direction:column;gap:20px;">
+    <div class="panel">
+      <h2>Returns at a Glance</h2>
+      <div class="kpis" id="kpis"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Full Appraisal Breakdown</h2>
+      <table class="det" id="detail"></table>
+    </div>
+
+    <div class="panel">
+      <h2>Sensitivity — Net Profit (USD)</h2>
+      <div class="sens">
+        <p>Rows = total construction cost / sqm · Columns = selling price / sqm. All other inputs held at current values. Outlined cell = closest to your current inputs.</p>
+        <div id="sens1"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Sensitivity — Return on Equity (%)</h2>
+      <div class="sens">
+        <p>Rows = annual loan interest rate · Columns = selling price / sqm. Construction cost held at current value.</p>
+        <div id="sens2"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="foot">⚠ Indicative only. Verify all assumptions against current market data, contractor quotes, and legal/tax advice before making investment decisions.</div>
+
+<script>
+// ---- Input definitions (id, label, default, unit, hint, isPercent, step) ----
+// Defaults pulled directly from "Real Estate Appraisal - Professional.xlsx"
+const GROUPS = [
+  ["Site & Development", [
+    ["landArea","Land Plot Area",1010,"sqm","Net developable land area",false,1],
+    ["buildCoef","Building Coefficient (K2)",4.95,"×","Max floor area ratio (planning consent)",false,0.01],
+    ["lossFactor","Loss Factor",1.24,"×","Structure & common areas",false,0.01],
+    ["handoverRefArea","Handover Reference Area",1545,"sqm","Existing owners' reference unit area",false,1],
+    ["handoverMult","Handover Multiplier",1.4,"×","Compensation factor on reference area",false,0.01],
+    ["addlSellable","Additional Sellable Area",350,"sqm","Planning bonus",false,1],
+    ["parkingSpaces","Number of Parking Spaces",40,"units","",false,1],
+    ["duration","Project Duration",2.5,"years","",false,0.1],
+  ]],
+  ["Pricing", [
+    ["sellPrice","Residential Selling Price",4000,"USD/sqm","",false,50],
+    ["parkingPrice","Parking Space Price",35000,"USD/space","",false,1000],
+  ]],
+  ["Construction Costs", [
+    ["baseConstrCost","Base Construction Cost",700,"USD/sqm","",false,25],
+    ["addlCost","Additional Cost (City Hall)",75,"USD/sqm","",false,5],
+    ["gfaFactor","Construction GFA Factor",1.25,"×","Basement & technical floors beyond GBA",false,0.01],
+    ["softCostRate","Soft Cost Rate",4,"%","Design, permits, legal — % of hard costs",true,0.5],
+  ]],
+  ["Financing", [
+    ["equityShare","Equity Share",30,"%","Developer equity as % of construction cost",true,1],
+    ["loanRate","Annual Loan Interest Rate",12,"%","Charged on drawn loan balance",true,0.5],
+  ]],
+  ["Taxes & Transaction", [
+    ["vatRate","VAT Rate",18,"%","Georgian standard VAT; construction VAT recoverable",true,1],
+    ["smRate","Sales & Marketing Rate",3,"%","Agent fees, marketing — % of gross revenue",true,0.5],
+  ]],
+  ["Tenant Obligations", [
+    ["tenantApts","Number of Tenant Apartments",15,"units","Requiring temporary relocation",false,1],
+    ["monthlyRent","Monthly Rent per Apartment",1200,"USD/month","",false,50],
+    ["compPeriod","Compensation Period",2.5,"years","",false,0.1],
+  ]],
+];
+
+const DEFAULTS = {};
+GROUPS.forEach(([,fields])=>fields.forEach(([id,,def])=>DEFAULTS[id]=def));
+
+// ---- Build the input form ----
+const inputsEl = document.getElementById("inputs");
+GROUPS.forEach(([title,fields])=>{
+  const h=document.createElement("h3"); h.textContent=title; inputsEl.appendChild(h);
+  fields.forEach(([id,label,def,unit,hint,isPct,step])=>{
+    const row=document.createElement("div"); row.className="field";
+    row.innerHTML=`<label>${label}${hint?`<span class="hint">${hint}</span>`:""}</label>
+      <span class="inp"><input type="number" id="${id}" value="${def}" step="${step}" data-pct="${isPct?1:0}">
+      <span class="unit">${unit}</span></span>`;
+    inputsEl.appendChild(row);
+  });
+});
+
+// ---- Read inputs ----
+function v(id){
+  const el=document.getElementById(id);
+  let n=parseFloat(el.value);
+  if(isNaN(n)) n=0;
+  if(el.dataset.pct==="1") n=n/100;   // percent fields entered as whole numbers
+  return n;
+}
+
+// ---- The model (identical chain to the Development Appraisal sheet) ----
+function compute(o){
+  const gba = o.landArea*o.buildCoef;                          // C7
+  const handoverArea = o.handoverRefArea*o.handoverMult;        // C11
+  const nsa = gba/o.lossFactor - handoverArea + o.addlSellable; // C13
+  const constrPerSqm = o.baseConstrCost + o.addlCost;           // C24
+
+  const gdvRes = nsa*o.sellPrice;                               // E6
+  const gdvPark = o.parkingSpaces*o.parkingPrice;               // E7
+  const gdv = gdvRes+gdvPark;                                   // E9
+
+  const construction = gba*o.gfaFactor*constrPerSqm;            // E14
+  const softCosts = construction*o.softCostRate;               // E15
+  const totalConstruction = construction+softCosts;            // E17
+  const tenant = o.tenantApts*o.compPeriod*12*o.monthlyRent;    // E20
+  const sm = gdv*o.smRate;                                      // E23
+  const totalDevCosts = totalConstruction+tenant+sm;           // E25
+
+  const equity = totalConstruction*o.equityShare;              // E30
+  const loan = totalConstruction*(1-o.equityShare);            // E31
+  const interest = loan*o.loanRate*o.duration;                 // E34
+  const totalFinance = interest;                               // E36
+
+  const vatOutput = gdv*o.vatRate;                             // E40
+  const vatInput = totalConstruction*o.vatRate;                // E41
+  const netVat = vatOutput-vatInput;                           // E43
+
+  const netProfit = gdv-totalDevCosts-totalFinance-netVat;     // E53
+  const allInCost = totalDevCosts+totalFinance+netVat;
+  const profitOnCost = allInCost?netProfit/allInCost:0;        // E57
+  const marginGdv = gdv?netProfit/gdv:0;                       // E58
+  const roe = equity?netProfit/equity:0;                       // E61
+  const annualizedRoe = (equity&&o.duration)?roe/o.duration:0; // E62
+  const equityMultiple = equity?(equity+netProfit)/equity:0;   // E63
+  const breakeven = nsa?((totalConstruction+tenant+interest-vatInput)/(1-o.vatRate-o.smRate)
+                         - o.parkingSpaces*o.parkingPrice)/nsa:0; // E65
+
+  return {gba,handoverArea,nsa,constrPerSqm,gdvRes,gdvPark,gdv,construction,softCosts,
+    totalConstruction,tenant,sm,totalDevCosts,equity,loan,interest,totalFinance,
+    vatOutput,vatInput,netVat,netProfit,allInCost,profitOnCost,marginGdv,roe,
+    annualizedRoe,equityMultiple,breakeven};
+}
+
+// ---- Formatters ----
+const usd = n=>"$"+Math.round(n).toLocaleString("en-US");
+const pct = n=>(n*100).toFixed(1)+"%";
+const num = (n,d=1)=>n.toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d});
+const mult= n=>n.toFixed(2)+"×";
+
+// ---- Render ----
+function render(){
+  const o={}; Object.keys(DEFAULTS).forEach(k=>o[k]=v(k));
+  const r=compute(o);
+
+  // KPIs
+  document.getElementById("kpis").innerHTML=`
+    <div class="kpi accent"><div class="lbl">Net Development Profit</div><div class="val">${usd(r.netProfit)}</div><div class="note">after all costs, finance & VAT</div></div>
+    <div class="kpi"><div class="lbl">Profit Margin on GDV</div><div class="val">${pct(r.marginGdv)}</div><div class="note">profit ÷ gross development value</div></div>
+    <div class="kpi"><div class="lbl">Return on Equity</div><div class="val">${pct(r.roe)}</div><div class="note">${pct(r.annualizedRoe)} annualized</div></div>
+    <div class="kpi"><div class="lbl">Equity Multiple (MOIC)</div><div class="val">${mult(r.equityMultiple)}</div><div class="note">on ${usd(r.equity)} equity invested</div></div>`;
+
+  // Detail
+  document.getElementById("detail").innerHTML=`
+    <thead><tr><th>Description</th><th>Qty / Area</th><th>Unit Rate</th><th>Amount USD</th></tr></thead>
+    <tbody>
+      <tr class="section"><td colspan="4">1 · Gross Development Value</td></tr>
+      <tr><td>Residential Apartments</td><td>${num(r.nsa)} sqm</td><td>${usd(o.sellPrice)}</td><td>${usd(r.gdvRes)}</td></tr>
+      <tr><td>Parking Spaces</td><td>${o.parkingSpaces}</td><td>${usd(o.parkingPrice)}</td><td>${usd(r.gdvPark)}</td></tr>
+      <tr class="total"><td>Total Gross Development Value</td><td></td><td></td><td>${usd(r.gdv)}</td></tr>
+
+      <tr class="section"><td colspan="4">2 · Development Costs</td></tr>
+      <tr><td>Construction</td><td>${num(r.gba*o.gfaFactor)} sqm</td><td>${usd(r.constrPerSqm)}</td><td>${usd(r.construction)}</td></tr>
+      <tr class="sub"><td>Soft Costs (design, permits, legal)</td><td></td><td>${pct(o.softCostRate)}</td><td>${usd(r.softCosts)}</td></tr>
+      <tr class="sub"><td>Tenant Obligations (relocation leases)</td><td>${o.tenantApts} apts · ${num(o.compPeriod,1)} yr</td><td>${usd(o.monthlyRent)}/mo</td><td>${usd(r.tenant)}</td></tr>
+      <tr class="sub"><td>Sales & Marketing</td><td></td><td>${pct(o.smRate)}</td><td>${usd(r.sm)}</td></tr>
+      <tr class="total"><td>Total Development Costs (excl. finance)</td><td></td><td></td><td>${usd(r.totalDevCosts)}</td></tr>
+
+      <tr class="section"><td colspan="4">3 · Finance</td></tr>
+      <tr><td>Equity Required (${pct(o.equityShare)} of construction)</td><td></td><td></td><td>${usd(r.equity)}</td></tr>
+      <tr><td>Loan Required (${pct(1-o.equityShare)} of construction)</td><td></td><td></td><td>${usd(r.loan)}</td></tr>
+      <tr class="sub"><td>Loan Interest</td><td>${pct(o.loanRate)} × ${num(o.duration,1)} yr</td><td></td><td>${usd(r.interest)}</td></tr>
+      <tr class="total"><td>Total Finance Costs</td><td></td><td></td><td>${usd(r.totalFinance)}</td></tr>
+
+      <tr class="section"><td colspan="4">4 · VAT Position</td></tr>
+      <tr><td>VAT Output Tax (on sales)</td><td></td><td>${pct(o.vatRate)}</td><td>${usd(r.vatOutput)}</td></tr>
+      <tr class="sub"><td>Less: VAT Input Tax (recoverable on construction)</td><td></td><td>${pct(o.vatRate)}</td><td class="neg">(${usd(r.vatInput)})</td></tr>
+      <tr class="total"><td>Net VAT Liability</td><td></td><td></td><td>${usd(r.netVat)}</td></tr>
+
+      <tr class="section"><td colspan="4">5 · Returns</td></tr>
+      <tr><td>Gross Development Value</td><td></td><td></td><td>${usd(r.gdv)}</td></tr>
+      <tr class="sub"><td>Less: Total Development Costs</td><td></td><td></td><td class="neg">(${usd(r.totalDevCosts)})</td></tr>
+      <tr class="sub"><td>Less: Finance Costs</td><td></td><td></td><td class="neg">(${usd(r.totalFinance)})</td></tr>
+      <tr class="sub"><td>Less: Net VAT Liability</td><td></td><td></td><td class="neg">(${usd(r.netVat)})</td></tr>
+      <tr class="grand"><td>NET DEVELOPMENT PROFIT</td><td></td><td></td><td>${usd(r.netProfit)}</td></tr>
+
+      <tr class="section"><td colspan="4">Key Performance Indicators</td></tr>
+      <tr><td>Profit on Total All-In Cost</td><td></td><td></td><td>${pct(r.profitOnCost)}</td></tr>
+      <tr><td>Profit Margin on GDV</td><td></td><td></td><td>${pct(r.marginGdv)}</td></tr>
+      <tr><td>Return on Equity</td><td></td><td></td><td>${pct(r.roe)}</td></tr>
+      <tr><td>Annualized Return on Equity</td><td></td><td></td><td>${pct(r.annualizedRoe)}</td></tr>
+      <tr><td>Equity Multiple (MOIC)</td><td></td><td></td><td>${mult(r.equityMultiple)}</td></tr>
+      <tr><td>Break-Even Price per sqm</td><td></td><td></td><td>${usd(r.breakeven)}</td></tr>
+    </tbody>`;
+
+  renderSensitivity(o);
+}
+
+// ---- Sensitivity tables ----
+function nearest(arr,target){let bi=0,bd=Infinity;arr.forEach((x,i)=>{const d=Math.abs(x-target);if(d<bd){bd=d;bi=i;}});return bi;}
+
+function renderSensitivity(o){
+  const prices=[3000,3250,3500,3750,4000,4250,4500,4750,5000];
+  const costs=[700,750,800,850,900,950,1000];
+  const cCol=nearest(prices,o.sellPrice), cRow=nearest(costs,o.constrPerSqm);
+  let h='<table class="grid"><thead><tr><th class="corner">Cost ↓ / Price →</th>'+
+    prices.map(p=>`<th>${p.toLocaleString()}</th>`).join('')+'</tr></thead><tbody>';
+  costs.forEach((cc,ri)=>{
+    h+=`<tr><th>${cc}</th>`;
+    prices.forEach((p,ci)=>{
+      const m={...o, baseConstrCost:cc, addlCost:0, sellPrice:p}; // cc already = total cost/sqm
+      const np=compute(m).netProfit;
+      const cls=(ri===cRow&&ci===cCol)?'cur':'';
+      const bg = np>=0 ? `background:rgba(46,160,95,${Math.min(.18,np/3e7)})`
+                       : `background:rgba(156,0,6,${Math.min(.22,-np/1.5e7)});color:#9c0006`;
+      h+=`<td class="${cls}" style="${bg}">${(np/1e6).toFixed(2)}M</td>`;
+    });
+    h+='</tr>';
+  });
+  h+='</tbody></table>';
+  document.getElementById("sens1").innerHTML=h;
+
+  // Table 2: ROE vs price x loan rate
+  const prices2=[3000,3500,4000,4500,5000,5500];
+  const rates=[0.08,0.10,0.12,0.14,0.16,0.18];
+  const c2Col=nearest(prices2,o.sellPrice), c2Row=nearest(rates,o.loanRate);
+  let h2='<table class="grid"><thead><tr><th class="corner">Loan rate ↓ / Price →</th>'+
+    prices2.map(p=>`<th>${p.toLocaleString()}</th>`).join('')+'</tr></thead><tbody>';
+  rates.forEach((lr,ri)=>{
+    h2+=`<tr><th>${(lr*100).toFixed(0)}%</th>`;
+    prices2.forEach((p,ci)=>{
+      const m={...o, loanRate:lr, sellPrice:p};
+      const roe=compute(m).roe;
+      const cls=(ri===c2Row&&ci===c2Col)?'cur':'';
+      const bg = roe>=0 ? `background:rgba(46,160,95,${Math.min(.20,roe/3)})`
+                        : `background:rgba(156,0,6,.18);color:#9c0006`;
+      h2+=`<td class="${cls}" style="${bg}">${(roe*100).toFixed(0)}%</td>`;
+    });
+    h2+='</tr>';
+  });
+  h2+='</tbody></table>';
+  document.getElementById("sens2").innerHTML=h2;
+}
+
+function resetDefaults(){
+  Object.keys(DEFAULTS).forEach(k=>document.getElementById(k).value=DEFAULTS[k]);
+  render();
+}
+
+// live recompute on any change
+document.addEventListener("input",e=>{if(e.target.tagName==="INPUT")render();});
+render();
+</script>
+</body>
+</html>
